@@ -14,7 +14,7 @@ import (
 type RecordSlice struct {
 	lifter string
 	date   time.Time
-	weight int
+	weight float64
 }
 
 type Filters struct {
@@ -42,7 +42,7 @@ func writeRecordsToCSV(records []RecordSlice, filename string) error {
 		row := []string{
 			record.lifter,
 			record.date.Format("2006-01-02"),
-			fmt.Sprintf("%d", record.weight),
+			fmt.Sprintf("%.1f", record.weight),
 		}
 		err = writer.Write(row)
 		if err != nil {
@@ -101,7 +101,7 @@ func main() {
 	})
 
 	var filteredData [][]string
-	var squatR, benchR, deadliftR, totalR int
+	var squatR, benchR, deadliftR, totalR float64
 	var SquatRecordTimeline, BenchRecordTimeline, DeadliftRecordTimeline, TotalRecordTimeline []RecordSlice
 	for _, record := range data {
 		if record[3] == "Raw" && record[2] == "SBD" && record[1] == filters.Gender &&
@@ -109,7 +109,7 @@ func main() {
 			filteredData = append(filteredData, record)
 
 			date_, _ := time.Parse(dateFormat, record[36])
-			squat, err := strconv.Atoi(record[14])
+			squat, err := strconv.ParseFloat(record[14], 64)
 
 			if err == nil && squat > squatR {
 
@@ -117,7 +117,7 @@ func main() {
 				squatR = squat
 			}
 
-			bench, err := strconv.Atoi(record[19])
+			bench, err := strconv.ParseFloat(record[19], 64)
 
 			if err == nil && bench > benchR {
 				BenchRecordTimeline = append(BenchRecordTimeline, RecordSlice{record[0], date_, bench})
@@ -125,14 +125,14 @@ func main() {
 				benchR = bench
 			}
 
-			deadlift, err := strconv.Atoi(record[24])
+			deadlift, err := strconv.ParseFloat(record[24], 64)
 
 			if err == nil && deadlift > deadliftR {
 				DeadliftRecordTimeline = append(DeadliftRecordTimeline, RecordSlice{record[0], date_, deadlift})
 				deadliftR = deadlift
 			}
 
-			total, err := strconv.Atoi(record[25])
+			total, err := strconv.ParseFloat(record[25], 64)
 			if err == nil && total > totalR {
 				TotalRecordTimeline = append(TotalRecordTimeline, RecordSlice{record[0], date_, total})
 				totalR = total
