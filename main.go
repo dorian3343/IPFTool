@@ -84,7 +84,6 @@ func main() {
 		return
 	}
 	data := records[1:]
-
 	dateFormat := "2006-01-02"
 	sort.Slice(data, func(i, j int) bool {
 		date1, err1 := time.Parse(dateFormat, data[i][36])
@@ -95,10 +94,10 @@ func main() {
 		return date1.Before(date2)
 	})
 	var filteredData [][]string
-	var squatR, benchR, deadliftR int
-	var SquatRecordTimeline, BenchRecordTimeline, DeadliftRecordTimeline []RecordSlice
-	fmt.Println(filters)
+	var squatR, benchR, deadliftR, totalR int
+	var SquatRecordTimeline, BenchRecordTimeline, DeadliftRecordTimeline, TotalRecordTimeline []RecordSlice
 	for _, record := range data {
+
 		if record[3] == "Raw" && record[2] == "SBD" && record[1] == filters.Gender && record[9] == filters.WeightCat {
 			filteredData = append(filteredData, record)
 
@@ -125,7 +124,31 @@ func main() {
 				DeadliftRecordTimeline = append(DeadliftRecordTimeline, RecordSlice{record[0], date_, deadlift})
 				deadliftR = deadlift
 			}
+
+			total, err := strconv.Atoi(record[25])
+			if err == nil && total > totalR {
+				TotalRecordTimeline = append(TotalRecordTimeline, RecordSlice{record[0], date_, total})
+				totalR = total
+			}
+
 		}
 	}
-	writeRecordsToCSV(SquatRecordTimeline, "./csv/timeline.csv")
+	switch filters.Lift {
+	case "S":
+		{
+			writeRecordsToCSV(SquatRecordTimeline, "./csv/timeline.csv")
+		}
+	case "B":
+		{
+			writeRecordsToCSV(BenchRecordTimeline, "./csv/timeline.csv")
+		}
+	case "D":
+		{
+			writeRecordsToCSV(DeadliftRecordTimeline, "./csv/timeline.csv")
+		}
+	case "T":
+		{
+			writeRecordsToCSV(TotalRecordTimeline, "./csv/timeline.csv")
+		}
+	}
 }
