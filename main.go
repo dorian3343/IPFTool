@@ -140,7 +140,6 @@ func main() {
 
 		}
 	}
-	fmt.Println(totalR)
 	switch filters.Lift {
 	case "S":
 		{
