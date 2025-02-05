@@ -88,17 +88,24 @@ func main() {
 	sort.Slice(data, func(i, j int) bool {
 		date1, err1 := time.Parse(dateFormat, data[i][36])
 		date2, err2 := time.Parse(dateFormat, data[j][36])
-		if err1 != nil || err2 != nil {
+		if err1 != nil && err2 != nil {
 			return false
+		}
+		if err1 != nil {
+			return false
+		}
+		if err2 != nil {
+			return true
 		}
 		return date1.Before(date2)
 	})
+
 	var filteredData [][]string
 	var squatR, benchR, deadliftR, totalR int
 	var SquatRecordTimeline, BenchRecordTimeline, DeadliftRecordTimeline, TotalRecordTimeline []RecordSlice
 	for _, record := range data {
-
-		if record[3] == "Raw" && record[2] == "SBD" && record[1] == filters.Gender && record[9] == filters.WeightCat {
+		if record[3] == "Raw" && record[2] == "SBD" && record[1] == filters.Gender &&
+			(record[9] == filters.WeightCat || (filters.WeightCat == "120+" && (record[9] == "Open" || record[9] == ""))) {
 			filteredData = append(filteredData, record)
 
 			date_, _ := time.Parse(dateFormat, record[36])
@@ -133,6 +140,7 @@ func main() {
 
 		}
 	}
+	fmt.Println(totalR)
 	switch filters.Lift {
 	case "S":
 		{
