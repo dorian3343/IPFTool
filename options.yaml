@@ -1,0 +1,10 @@
+# Filters used while searching
+
+# Gender: M for male, F for female
+gender: F
+# Lifts S for squat, B for bench, D for deadlift
+Lift: S
+
+#Men: up to 53 kg , 59 kg, 66 kg, 74 kg, 83 kg, 93 kg, 105 kg, 120 kg, 120 kg+
+#Women: up to 43 kg, 47 kg, 52 kg, 57 kg, 63 kg, 69 kg, 76kg,  84 kg, 84 kg+
+WeightCat: 84+
