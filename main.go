@@ -18,9 +18,10 @@ type RecordSlice struct {
 }
 
 type Filters struct {
-	Gender    string `yaml:"gender"`
+	Gender    string `yaml:"Gender"`
 	Lift      string `yaml:"Lift"`
 	WeightCat string `yaml:"WeightCat"`
+	Eq        string `yaml:"Eq"`
 }
 
 func writeRecordsToCSV(records []RecordSlice, filename string) error {
@@ -49,18 +50,20 @@ func writeRecordsToCSV(records []RecordSlice, filename string) error {
 			return fmt.Errorf("error writing record: %v", err)
 		}
 	}
-
 	return nil
 }
 
 func main() {
+	var squatR, benchR, deadliftR, totalR float64
+	var SquatRecordTimeline, BenchRecordTimeline, DeadliftRecordTimeline, TotalRecordTimeline []RecordSlice
+	var filters Filters
+
 	options, err := os.ReadFile("options.yaml")
 	if err != nil {
 		fmt.Println("Error reading file:", err)
 		return
 	}
 
-	var filters Filters
 	err = yaml.Unmarshal(options, &filters)
 	if err != nil {
 		fmt.Println("Error parsing YAML:", err)
@@ -100,24 +103,19 @@ func main() {
 		return date1.Before(date2)
 	})
 
-	var filteredData [][]string
-	var squatR, benchR, deadliftR, totalR float64
-	var SquatRecordTimeline, BenchRecordTimeline, DeadliftRecordTimeline, TotalRecordTimeline []RecordSlice
 	for _, record := range data {
-		if record[3] == "Raw" && record[2] == "SBD" && record[1] == filters.Gender &&
-			(record[9] == filters.WeightCat || (filters.WeightCat == "120+" && (record[9] == "Open" || record[9] == ""))) {
-			filteredData = append(filteredData, record)
 
+		if record[3] == filters.Eq && record[2] == "SBD" && record[1] == filters.Gender &&
+			(record[9] == filters.WeightCat || (filters.WeightCat == "120+" && (record[9] == "Open" || record[9] == ""))) {
 			date_, _ := time.Parse(dateFormat, record[36])
-			squat, err := strconv.ParseFloat(record[14], 64)
+			squat, err := strconv.ParseFloat(record[14], 32)
 
 			if err == nil && squat > squatR {
-
 				SquatRecordTimeline = append(SquatRecordTimeline, RecordSlice{record[0], date_, squat})
 				squatR = squat
 			}
 
-			bench, err := strconv.ParseFloat(record[19], 64)
+			bench, err := strconv.ParseFloat(fmt.Sprintf("%v", record[19]), 32)
 
 			if err == nil && bench > benchR {
 				BenchRecordTimeline = append(BenchRecordTimeline, RecordSlice{record[0], date_, bench})
@@ -125,14 +123,14 @@ func main() {
 				benchR = bench
 			}
 
-			deadlift, err := strconv.ParseFloat(record[24], 64)
+			deadlift, err := strconv.ParseFloat(record[24], 32)
 
 			if err == nil && deadlift > deadliftR {
 				DeadliftRecordTimeline = append(DeadliftRecordTimeline, RecordSlice{record[0], date_, deadlift})
 				deadliftR = deadlift
 			}
 
-			total, err := strconv.ParseFloat(record[25], 64)
+			total, err := strconv.ParseFloat(record[25], 32)
 			if err == nil && total > totalR {
 				TotalRecordTimeline = append(TotalRecordTimeline, RecordSlice{record[0], date_, total})
 				totalR = total
